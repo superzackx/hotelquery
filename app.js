@@ -44,6 +44,7 @@ app.post('/search' , async (req, res) => {
    axios(options)
      .then(async response => {
         let hotels = []
+        response.data.places?.splice(6);
         response.data.places?.forEach((place) => {
             hotels.push(place.displayName.text)
         })
