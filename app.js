@@ -156,6 +156,29 @@ app.post('/search', async (req, res) => {
       }
     });
 
+    const hotelRatesResponse = await axios.post('https://apiwr.tboholidays.com/HotelAPI/search', {
+      "CheckIn": "2024-12-12",
+      "CheckOut": "2024-12-13",
+      "HotelCodes": formattedArrString,
+      "GuestNationality": "AE",
+      "PaxRooms": [
+          {
+              "Adults": 2,
+              "Children": 0,
+              "ChildrenAges": []
+          }
+      ],
+      "IsDetailedResponse": true
+  }, {
+      auth: {
+        username: process.env.TBO_USER,
+        password: process.env.TBO_PASS
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
     // Create a map of hotel codes to their details
     const hotelDetailsMap = new Map(hotelDetailsResponse.data.HotelDetails.map(hotel => [hotel.HotelCode, hotel]));
 
@@ -167,8 +190,31 @@ app.post('/search', async (req, res) => {
         image: details?.Images[0] || null
       };
     });
+    
+    let hotelRooms = hotelRatesResponse.data.HotelResult;
+    // Iterate through the hotels array
+    coolArr.forEach(hotel => {
+      let lowestFare = Infinity;
+    
+      // Find the corresponding hotel in the hotelRooms array
+      const hotelData = hotelRooms.find(room => room.HotelCode === hotel.hotelCode);
+    
+      if (hotelData) {
+        // Find the lowest TotalFare for all rooms in this hotel
+        hotelData.Rooms.forEach(room => {
+          if (room.TotalFare < lowestFare) {
+            lowestFare = room.TotalFare;
+          }
+        });
+      }
+    
+      // Add the lowest TotalFare to the hotel object
+      hotel.TotalFare = lowestFare === Infinity ? null : lowestFare;
+    });
+    
+    console.log(coolArr);
+    res.render('results', { data: coolArr });
 
-    res.render('results', {data: coolArr});
   } catch (error) {
     console.error('Error in search endpoint:', error);
     res.status(500).send('An error occurred while processing your request');
