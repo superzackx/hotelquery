@@ -16,18 +16,18 @@
     <br>
     <div class="container">
         <h1 class="text-center display-3" style="font-weight: bold;">Results</h1>
-        <h4 class="text-center">Query: <%= query %></h4>
         <br>
         <div class="row">
             <% data.forEach(hotel => { %>
                 <div class="col-md-4">
                     <div class="card">
+                        <img src="<%= hotel.image %>" class="card-img-top" alt="<%= hotel.displayName %>">
                         <div class="card-body">
-                            <h5 class="card-title"><%= hotel.displayName.text %></h5>
+                            <h5 class="card-title"><%= hotel.displayName %></h5>
                             <p class="card-text"><%= hotel.description %></p>
                         </div>
                         <div class="card-footer">
-                            <p><%= hotel.formattedAddress %></p>
+                            <p>$<%= hotel.hotelCode %></p>
                         </div>
                     </div>
                 </div>
